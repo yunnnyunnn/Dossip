@@ -32,7 +32,18 @@ class User extends REST_Controller {
         
         if($users)
         {
-            $this->response($users, 200); // 200 being the HTTP response code
+            
+            $action_array = array();
+            
+            $action_array[] = array("href" => "/user",
+                                    "rel" => "create",
+                                    "method" => "POST");
+            
+            $info = array("users" => $users,
+                          "links" => $action_array
+                          );
+            
+            $this->response($info, 200); // 200 being the HTTP response code
         }
         
         else
@@ -40,9 +51,11 @@ class User extends REST_Controller {
             $this->response(NULL, 404);
         }
     }
+
     
     public function index_post()
     {
+        
         
         $data = array('user_id' => $this->post('user_id'));
         
@@ -61,14 +74,18 @@ class User extends REST_Controller {
         
         $result = $this->User_model->insert_user($data);
         
-        if($result == FALSE)
+        if($result)
         {
-            $this->response(array('status' => 'failed'));
+            
+            $this->response($result, 201);
+
         }
         
         else
         {
-            $this->response(array('status' => 'success'));
+            
+            $this->response(NULL, 404);
+            
         }
         
     }

@@ -15,6 +15,14 @@
             return $query->result();
         }
         
+        function insert_post($data)
+        {
+            if($this->db->insert('post', $data))
+                return TRUE;
+            else
+                return FALSE;
+        }
+        
         /*
         function insert_entry()
         {

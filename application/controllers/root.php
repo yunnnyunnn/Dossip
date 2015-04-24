@@ -1,7 +1,7 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
     require_once(APPPATH.'libraries/REST_Controller.php');
     
-class Post extends REST_Controller {
+class Root extends REST_Controller {
 
 	/**
 	 * Index Page for this controller.
@@ -23,42 +23,30 @@ class Post extends REST_Controller {
     {
         parent::__construct();
         // Your own constructor code
-        $this->load->model('Post_model');
     }
     
 	public function index_get()
 	{
-        $posts = $this->Post_model->get_all_posts();
         
-        if($posts)
-        {
-            $this->response($posts, 200); // 200 being the HTTP response code
-        }
+        $version = "1.0";
         
-        else
-        {
-            $this->response(NULL, 404);
-        }
-    }
-    
-    public function index_post()
-    {
+        $action_array = array();
         
-        $result = $this->Post_model->insert_post(array('post_title' => $this->post('post_title'),
-                                                       'post_content' => $this->post('post_content')));
+        $action_array[] = array("href" => "/user",
+                         "rel" => "list",
+                         "method" => "GET");
         
-        if($result === FALSE)
-        {
-            $this->response(array('status' => 'failed'));
-        }
+        $action_array[] = array("href" => "/user",
+                         "rel" => "create",
+                         "method" => "POST");
         
-        else
-        {
-            $this->response(array('status' => 'success'));
-        }
+        $info = array("version" => $version,
+                      "links" => $action_array
+                      );
         
-    }
+        $this->response($info, 200); // 200 being the HTTP response code
 
+    }
     
 }
 

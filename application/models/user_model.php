@@ -18,10 +18,14 @@
         
         function insert_user($data)
         {
-            if($this->db->insert('user', $data))
-                return TRUE;
-            else
-                return FALSE;
+            
+            if ($this->db->insert('user', $data)) {
+                return $this->db->get_where('user', array('user_id' => $this->db->insert_id()))->result();
+            }
+            else {
+                return false;
+            }
+            
         }
         
         
