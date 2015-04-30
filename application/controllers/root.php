@@ -23,6 +23,8 @@ class Root extends REST_Controller {
     {
         parent::__construct();
         // Your own constructor code
+        //$this->load->model('User_model');
+
     }
     
 	public function index_get()

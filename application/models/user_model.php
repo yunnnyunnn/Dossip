@@ -15,6 +15,10 @@
             return $query->result();
         }
         
+        function get_users($where)
+        {
+            return $this->db->where($where)->get('user')->result();
+        }
         
         function insert_user($data)
         {

@@ -26,12 +26,26 @@ class User extends REST_Controller {
         $this->load->model('User_model');
     }
     
-	public function index_get()
-	{
-        $users = $this->User_model->get_all_users();
+    public function index_get($id='')
+    {
+        
+        if(!$id) $id = $this->get('id');
+        
+        if($id) // with id, we get one single user
+        {
+            $users = $this->User_model->get_users(array('user_id' => $id));
+        }
+        
+        else // no id, we get all the users
+        {
+            $users = $this->User_model->get_all_users();
+        }
+        
         
         if($users)
         {
+            
+            $this->add_user_links($users);
             
             $action_array = array();
             
@@ -48,7 +62,7 @@ class User extends REST_Controller {
         
         else
         {
-            $this->response(NULL, 404);
+            $this->response(array('error' => 'user could not be found'), 404);
         }
     }
 
@@ -76,8 +90,21 @@ class User extends REST_Controller {
         
         if($result)
         {
+            $this->add_user_links($result);
             
-            $this->response($result, 201);
+            
+            
+            $action_array = array();
+            
+            $action_array[] = array("href" => "/user",
+                                    "rel" => "list",
+                                    "method" => "get");
+            
+            $info = array("user" => $result,
+                          "links" => $action_array
+                          );
+            
+            $this->response($info, 201);
 
         }
         
@@ -88,6 +115,23 @@ class User extends REST_Controller {
             
         }
         
+    }
+    
+    private function add_user_links($users)
+    {
+        foreach ($users as $user) {
+            
+            $user_id = $user->user_id;
+            
+            $user_links = array();
+            $user_links[] = array("href" => "/user/$user_id",
+                                  "rel" => "self",
+                                  "method" => "GET");
+            
+            $user->links = $user_links;
+            
+        }
+        //return $users;
     }
     
 }
