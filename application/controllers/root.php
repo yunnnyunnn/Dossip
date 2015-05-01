@@ -42,6 +42,14 @@ class Root extends REST_Controller {
                          "rel" => "create",
                          "method" => "POST");
         
+        $action_array[] = array("href" => "/post",
+                                "rel" => "list",
+                                "method" => "GET");
+        
+        $action_array[] = array("href" => "/post",
+                                "rel" => "create",
+                                "method" => "POST");
+        
         $info = array("version" => $version,
                       "links" => $action_array
                       );
