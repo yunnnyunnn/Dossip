@@ -40,6 +40,7 @@
 
 $route['default_controller'] = "root";
 $route['user/(:any)'] = 'user/index/$1';
+$route['post/(:any)'] = 'post/index/$1';
 $route['404_override'] = '';
 
 

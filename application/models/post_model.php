@@ -15,12 +15,20 @@
             return $query->result();
         }
         
+        function get_posts($where)
+        {
+            return $this->db->where($where)->get('post')->result();
+        }
+        
+        
         function insert_post($data)
         {
-            if($this->db->insert('post', $data))
-                return TRUE;
-            else
-                return FALSE;
+            if ($this->db->insert('post', $data)) {
+                return $this->db->get_where('post', array('post_id' => $this->db->insert_id()))->result();
+            }
+            else {
+                return false;
+            }
         }
         
         /*

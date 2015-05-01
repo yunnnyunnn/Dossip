@@ -24,42 +24,125 @@ class Post extends REST_Controller {
         parent::__construct();
         // Your own constructor code
         $this->load->model('Post_model');
+        $this->load->model('User_model');
+
     }
     
-	public function index_get()
-	{
-        $posts = $this->Post_model->get_all_posts();
+    public function index_get($id='')
+    {
+        
+        if(!$id) $id = $this->get('id');
+        
+        if($id) // with id, we get one single post
+        {
+            $posts = $this->Post_model->get_posts(array('post_id' => $id));
+        }
+        
+        else // no id, we get all the users
+        {
+            $posts = $this->Post_model->get_all_posts();
+        }
+        
         
         if($posts)
         {
-            $this->response($posts, 200); // 200 being the HTTP response code
+            
+            $this->add_post_links($posts);
+            
+            $action_array = array();
+            
+            $action_array[] = array("href" => "/post",
+                                    "rel" => "create",
+                                    "method" => "POST");
+            
+            $info = array("posts" => $posts,
+                          "links" => $action_array
+                          );
+            
+            $this->response($info, 200); // 200 being the HTTP response code
         }
         
         else
         {
-            $this->response(NULL, 404);
+            $this->response(array('error' => 'post could not be found'), 404);
         }
     }
     
     public function index_post()
     {
+        // check if all required data received
+        if (!$this->post('post_title')||!$this->post('post_content')||!$this->post('post_lat')||!$this->post('post_long')||!$this->post('post_user')) {
+            
+            $this->response(array('error' => 'post values not complete'), 400);
+            
+        }
         
-        $result = $this->Post_model->insert_post(array('post_title' => $this->post('post_title'),
-                                                       'post_content' => $this->post('post_content')));
+        // check if user exists
+        $post_user_id = $this->post('post_user');
         
-        if($result === FALSE)
+        if (!$this->User_model->get_users(array('user_id' => $post_user_id))) {
+            $this->response(array('error' => 'no such user id'), 404);
+        }
+        
+        
+        
+        $data = array('post_id' => $this->post('post_id'),
+                      'post_title' => $this->post('post_title'),
+                      'post_content' => $this->post('post_content'),
+                      'post_time' => date("Y-m-d H:i:s"),
+                      'post_lat' => $this->post('post_lat'),
+                      'post_long' => $this->post('post_long'),
+                      'post_user' => $this->post('post_user'));
+        //
+        // fetch photo and add the url to data array
+        //
+        
+        $result = $this->Post_model->insert_post($data);
+        
+        if($result)
         {
-            $this->response(array('status' => 'failed'));
+            $this->add_post_links($result);
+            
+            
+            
+            $action_array = array();
+            
+            $action_array[] = array("href" => "/post",
+                                    "rel" => "list",
+                                    "method" => "get");
+            
+            $info = array("post" => $result,
+                          "links" => $action_array
+                          );
+            
+            $this->response($info, 201);
+            
         }
         
         else
         {
-            $this->response(array('status' => 'success'));
+            
+            $this->response(NULL, 404);
+            
         }
         
     }
 
-    
+    private function add_post_links($posts)
+    {
+        foreach ($posts as $post) {
+            
+            $post_id = $post->post_id;
+            
+            $post_links = array();
+            $post_links[] = array("href" => "/post/$post_id",
+                                  "rel" => "self",
+                                  "method" => "GET");
+            
+            $post->links = $post_links;
+            
+        }
+    }
 }
 
 /* End of file welcome.php */
