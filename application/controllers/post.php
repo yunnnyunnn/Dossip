@@ -1,5 +1,7 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
     require_once(APPPATH.'libraries/REST_Controller.php');
+    require_once(APPPATH.'libraries/vendor/autoload.php');
+    use Aws\S3\S3Client;
     
 class Post extends REST_Controller {
 
@@ -30,6 +32,44 @@ class Post extends REST_Controller {
     
     public function index_get($id='')
     {
+        
+        
+        try {
+            
+            // Instantiate the S3 client with your AWS credentials
+            $client = S3Client::factory(array(
+                                                'credentials' => array(
+                                                                       'key'    => AWS_ACCESS_KEY_ID,
+                                                                       'secret' => AWS_SECRET_ACCESS_KEY,
+                                                                       )
+                                                ));
+            
+            // Upload an object to Amazon S3
+            $result = $client->putObject(array(
+                                               'Bucket' => 'dossip.dev',
+                                               'Key'    => 'data.txt',
+                                               'Body'   => 'Hello!'
+                                               ));
+            
+            // Access parts of the result object
+            echo $result['Expiration'] . "\n";
+            echo $result['ServerSideEncryption'] . "\n";
+            echo $result['ETag'] . "\n";
+            echo $result['VersionId'] . "\n";
+            echo $result['RequestId'] . "\n";
+            
+            // Get the URL the object can be downloaded from
+            echo $result['ObjectURL'] . "\n";
+            
+            
+        }
+        catch(Exception $e) {
+            
+            exit($e->getMessage());
+        }
+        
+        
+        return;
         
         if(!$id) $id = $this->get('id');
         
